@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NovaABA · Coleta {{ programa.codigo }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+  <a href="#conteudo" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-3 focus:ring-4 focus:ring-sky-600">Pular para o conteúdo</a>
+
+  <header class="bg-sky-900 text-white">
+    <div class="mx-auto flex max-w-3xl items-center gap-3 px-4 py-4">
+      <a href="/" class="flex min-h-[52px] min-w-[52px] items-center justify-center rounded-xl border-2 border-white px-3 font-semibold hover:bg-sky-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300">
+        <span aria-hidden="true">←</span><span class="ml-1">Menu</span>
+      </a>
+      <div>
+        <p class="text-sm font-medium text-sky-100">Coleta de tentativas · {{ usuario.nome }}</p>
+        <h1 class="text-xl font-bold">{{ programa.codigo }} · <span class="font-mono">{{ programa.paciente_codigo }}</span></h1>
+      </div>
+    </div>
+  </header>
+
+  <main id="conteudo" class="mx-auto max-w-3xl px-4 py-6">
+    <section class="mb-6 rounded-2xl bg-white p-5 shadow-md" aria-labelledby="titulo-programa">
+      <p class="text-sm font-semibold uppercase tracking-wide text-sky-800">{{ programa.dominio }}</p>
+      <h2 id="titulo-programa" class="mt-1 text-lg font-semibold">{{ programa.habilidade }}</h2>
+    </section>
+
+    {% if erros %}
+    <div role="alert" class="mb-6 rounded-xl border-2 border-red-700 bg-red-50 p-4 text-red-900">
+      <p class="font-bold"><span aria-hidden="true">✖</span> Não foi possível salvar a sessão:</p>
+      <ul class="mt-2 list-disc pl-6">
+        {% for e in erros %}<li>{{ e }}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <section aria-labelledby="titulo-registro">
+      <h2 id="titulo-registro" class="mb-3 text-lg font-bold">Registrar resposta da tentativa</h2>
+      <div class="grid grid-cols-2 gap-3" role="group" aria-label="Tipos de resposta">
+        {% for codigo, ui in TENTATIVA_UI.items() %}
+        <button type="button" data-tentativa="{{ codigo }}"
+                class="botao-tentativa flex min-h-[88px] flex-col items-center justify-center rounded-2xl px-3 py-2 text-center shadow-md {{ ui.classes }} active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-600 focus-visible:ring-offset-2">
+          <span aria-hidden="true" class="text-3xl leading-none">{{ ui.simbolo }}</span>
+          <span class="mt-1 text-lg font-bold">{{ ui.rotulo }}</span>
+          <span class="text-sm font-semibold">({{ codigo }})</span>
+        </button>
+        {% endfor %}
+      </div>
+
+      <div class="mt-5 rounded-2xl bg-white p-5 shadow-md">
+        <p id="resumo" aria-live="polite" class="text-lg font-semibold">Nenhuma tentativa registrada.</p>
+        <ol id="lista-tentativas" class="mt-3 flex flex-wrap gap-2" aria-label="Sequência de tentativas"></ol>
+        <div class="mt-4 grid grid-cols-2 gap-3">
+          <button type="button" id="desfazer" class="min-h-[52px] rounded-xl border-2 border-slate-700 bg-white px-3 font-semibold hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-600">
+            <span aria-hidden="true">↶</span> Desfazer última
+          </button>
+          <button type="button" id="limpar" class="min-h-[52px] rounded-xl border-2 border-red-700 bg-white px-3 font-semibold text-red-800 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-600">
+            <span aria-hidden="true">⟲</span> Limpar tudo
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <form method="post" action="/coleta/{{ programa.id }}" class="mt-6 space-y-5 rounded-2xl bg-white p-5 shadow-md">
+      <input type="hidden" name="tentativas" id="campo-tentativas" value="{{ tentativas_previas|join(',') }}">
+      <div>
+        <label for="observacoes" class="mb-2 block font-semibold">Observações da sessão <span class="font-normal text-slate-700">(opcional)</span></label>
+        <textarea id="observacoes" name="observacoes" rows="3" maxlength="{{ max_observacoes }}" aria-describedby="ajuda-obs"
+                  class="w-full rounded-xl border-2 border-slate-500 p-3 text-base focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-600">{{ observacoes }}</textarea>
+        <p id="ajuda-obs" class="mt-1 text-sm text-slate-700">Até {{ max_observacoes }} caracteres. Não inclua dados pessoais do paciente.</p>
+      </div>
+      <button type="submit" id="salvar" class="min-h-[52px] w-full rounded-xl bg-emerald-800 px-4 text-lg font-bold text-white hover:bg-emerald-900 disabled:cursor-not-allowed disabled:bg-slate-400 disabled:text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 focus-visible:ring-offset-2">
+        <span aria-hidden="true">💾</span> Salvar sessão
+      </button>
+    </form>
+  </main>
+
+  <script>
+    (function () {
+      const UI = {{ TENTATIVA_UI|tojson }};
+      const MAX = {{ max_tentativas }};
+      const campo = document.getElementById("campo-tentativas");
+      const lista = document.getElementById("lista-tentativas");
+      const resumo = document.getElementById("resumo");
+      const salvar = document.getElementById("salvar");
+      let tentativas = campo.value ? campo.value.split(",").filter(Boolean) : [];
+
+      function atualizar(anuncio) {
+        campo.value = tentativas.join(",");
+        lista.replaceChildren(...tentativas.map(function (t, i) {
+          const item = document.createElement("li");
+          item.className = "rounded-lg px-3 py-1 text-sm font-bold " + UI[t].classes;
+          item.textContent = (i + 1) + ". " + UI[t].simbolo + " " + t;
+          item.setAttribute("aria-label", "Tentativa " + (i + 1) + ": " + UI[t].rotulo);
+          return item;
+        }));
+        const total = tentativas.length;
+        const independentes = tentativas.filter(function (t) { return t === "I"; }).length;
+        const pct = total ? Math.round(independentes / total * 1000) / 10 : 0;
+        resumo.textContent = total
+          ? (anuncio ? anuncio + " " : "") + total + " tentativa(s) · " + independentes + " independente(s) · " + pct + "% de independência."
+          : "Nenhuma tentativa registrada.";
+        salvar.disabled = total === 0;
+      }
+
+      document.querySelectorAll(".botao-tentativa").forEach(function (botao) {
+        botao.addEventListener("click", function () {
+          if (tentativas.length >= MAX) {
+            resumo.textContent = "Limite de " + MAX + " tentativas por sessão atingido.";
+            return;
+          }
+          const codigo = botao.dataset.tentativa;
+          tentativas.push(codigo);
+          atualizar(UI[codigo].rotulo + " registrada.");
+        });
+      });
+      document.getElementById("desfazer").addEventListener("click", function () {
+        tentativas.pop();
+        atualizar("Última tentativa removida.");
+      });
+      document.getElementById("limpar").addEventListener("click", function () {
+        if (tentativas.length && confirm("Remover todas as tentativas desta sessão?")) {
+          tentativas = [];
+          atualizar();
+        }
+      });
+      atualizar();
+    })();
+  </script>
+</body>
+</html>

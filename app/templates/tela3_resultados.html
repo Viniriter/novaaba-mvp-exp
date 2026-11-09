@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NovaABA · Resultados {{ r.programa.codigo }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+  <a href="#conteudo" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-3 focus:ring-4 focus:ring-sky-600">Pular para o conteúdo</a>
+  {% set p = r.programa %}
+  {% set st = STATUS_UI[p.status] %}
+  {% set criterio = p.criterio_dominio %}
+
+  <header class="bg-sky-900 text-white">
+    <div class="mx-auto flex max-w-3xl items-center gap-3 px-4 py-4">
+      <a href="/" class="flex min-h-[52px] min-w-[52px] items-center justify-center rounded-xl border-2 border-white px-3 font-semibold hover:bg-sky-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300">
+        <span aria-hidden="true">←</span><span class="ml-1">Menu</span>
+      </a>
+      <div>
+        <p class="text-sm font-medium text-sky-100">Resultados · {{ p.dominio }}</p>
+        <h1 class="text-xl font-bold">{{ p.codigo }} · <span class="font-mono">{{ p.paciente_codigo }}</span></h1>
+      </div>
+    </div>
+  </header>
+
+  <main id="conteudo" class="mx-auto max-w-3xl space-y-6 px-4 py-6">
+    {% if registrada %}
+    <div role="status" class="rounded-xl border-2 border-emerald-700 bg-emerald-50 p-4 text-emerald-900">
+      <span aria-hidden="true" class="font-bold">✔</span> <strong>Sessão registrada com sucesso.</strong> Os indicadores abaixo já estão atualizados.
+    </div>
+    {% endif %}
+
+    <section aria-labelledby="titulo-status" class="rounded-2xl border-2 p-5 shadow-md {{ st.classes }}">
+      <h2 id="titulo-status" class="text-sm font-semibold uppercase tracking-wide">Status do programa</h2>
+      <p class="mt-1 flex items-center gap-3 text-3xl font-bold">
+        <span aria-hidden="true">{{ st.simbolo }}</span> {{ st.rotulo }}
+      </p>
+      <p class="mt-2">{{ p.habilidade }}</p>
+      <p class="mt-2 text-sm font-semibold">
+        Critério de domínio: ≥ {{ criterio|round|int }}% de independência em {{ r.sessoes_consecutivas_exigidas }} sessões consecutivas
+        — {{ [r.sessoes_consecutivas_no_criterio, r.sessoes_consecutivas_exigidas]|min }} de {{ r.sessoes_consecutivas_exigidas }} atingida(s).
+      </p>
+    </section>
+
+    <section aria-label="Indicadores" class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div class="rounded-2xl bg-white p-4 shadow-md">
+        <p class="text-sm font-semibold text-slate-700">Sessões</p>
+        <p class="text-3xl font-bold">{{ r.total_sessoes }}</p>
+      </div>
+      <div class="rounded-2xl bg-white p-4 shadow-md">
+        <p class="text-sm font-semibold text-slate-700">Média de independência</p>
+        <p class="text-3xl font-bold">{{ r.media_independencia }}%</p>
+      </div>
+      <div class="rounded-2xl bg-white p-4 shadow-md">
+        <p class="text-sm font-semibold text-slate-700">Última sessão</p>
+        <p class="text-3xl font-bold">{{ r.ultimo_percentual if r.ultimo_percentual is not none else "—" }}{% if r.ultimo_percentual is not none %}%{% endif %}</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="titulo-grafico" class="rounded-2xl bg-white p-5 shadow-md">
+      <h2 id="titulo-grafico" class="text-lg font-bold">Evolução da independência por sessão</h2>
+      <p class="mb-4 text-sm text-slate-700">
+        Linha tracejada = critério de {{ criterio|round|int }}%.
+        <span class="whitespace-nowrap"><span aria-hidden="true">✔</span> verde = no critério</span> ·
+        <span class="whitespace-nowrap"><span aria-hidden="true">▲</span> âmbar = abaixo do critério</span>
+      </p>
+      {% if r.sessoes %}
+      <ul class="space-y-3">
+        {% for s in r.sessoes %}
+        {% set ok = s.percentual_independencia >= criterio %}
+        <li>
+          <div class="mb-1 flex justify-between text-sm font-semibold">
+            <span>Sessão {{ loop.index }} · {{ s.data_hora|data_br }}</span>
+            <span><span aria-hidden="true">{{ "✔" if ok else "▲" }}</span> {{ s.percentual_independencia }}% <span class="sr-only">{{ "no critério" if ok else "abaixo do critério" }}</span></span>
+          </div>
+          <div class="relative h-6 w-full rounded-md bg-slate-200" aria-hidden="true">
+            <div class="h-6 rounded-md {{ 'bg-emerald-700' if ok else 'bg-amber-500' }}" style="width: {{ s.percentual_independencia }}%"></div>
+            <div class="absolute inset-y-0 border-l-2 border-dashed border-slate-900" style="left: {{ criterio }}%"></div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="rounded-xl bg-slate-100 p-4"><span aria-hidden="true">○</span> Nenhuma sessão registrada para este programa.</p>
+      {% endif %}
+    </section>
+
+    {% if r.sessoes %}
+    <section aria-labelledby="titulo-historico" class="rounded-2xl bg-white p-5 shadow-md">
+      <h2 id="titulo-historico" class="mb-3 text-lg font-bold">Histórico de sessões</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[520px] text-left text-sm">
+          <caption class="sr-only">Sessões de coleta do {{ p.codigo }}, da mais antiga para a mais recente</caption>
+          <thead class="border-b-2 border-slate-300">
+            <tr>
+              <th scope="col" class="py-2 pr-3">#</th>
+              <th scope="col" class="py-2 pr-3">Data (UTC)</th>
+              <th scope="col" class="py-2 pr-3">Tentativas</th>
+              <th scope="col" class="py-2 pr-3">I / Total</th>
+              <th scope="col" class="py-2 pr-3">%</th>
+              <th scope="col" class="py-2">Observações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in r.sessoes %}
+            <tr class="border-b border-slate-200 align-top">
+              <td class="py-2 pr-3 font-semibold">{{ loop.index }}</td>
+              <td class="py-2 pr-3 whitespace-nowrap">{{ s.data_hora|data_br }}</td>
+              <td class="py-2 pr-3 font-mono">{{ s.tentativas|join(" ") }}</td>
+              <td class="py-2 pr-3">{{ s.total_independentes }} / {{ s.total_tentativas }}</td>
+              <td class="py-2 pr-3 font-semibold">{{ s.percentual_independencia }}%</td>
+              <td class="py-2">{{ s.observacoes or "—" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+    {% endif %}
+
+    <nav aria-label="Ações" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <a href="/coleta/{{ p.id }}" class="flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-sky-800 px-4 text-lg font-bold text-white hover:bg-sky-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 focus-visible:ring-offset-2">
+        <span aria-hidden="true">✎</span> Nova coleta
+      </a>
+      <a href="/" class="flex min-h-[52px] items-center justify-center gap-2 rounded-xl border-2 border-sky-800 bg-white px-4 text-lg font-bold text-sky-900 hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 focus-visible:ring-offset-2">
+        <span aria-hidden="true">←</span> Voltar ao menu
+      </a>
+    </nav>
+  </main>
+</body>
+</html>
