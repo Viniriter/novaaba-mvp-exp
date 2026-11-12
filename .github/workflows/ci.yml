@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-e-testes:
+    name: Build e testes (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+    env:
+      DATABASE_URL: sqlite:///./novaaba.db
+      SECRET_KEY: chave-somente-para-ci
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Instalar dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build (compilação dos módulos)
+        run: python -m compileall -q app
+
+      - name: Testes unitários e de integração com cobertura
+        run: |
+          pytest --cov=app --cov-report=term-missing --cov-report=xml \
+                 --cov-fail-under=90 --junitxml=junit.xml
+
+      - name: Smoke test da aplicação (Uvicorn + /health)
+        run: |
+          uvicorn app.main:app --host 127.0.0.1 --port 8000 &
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:8000/health && exit 0
+            sleep 1
+          done
+          echo "A aplicação não respondeu em /health" >&2
+          exit 1
+
+      - name: Publicar relatórios
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorios-python-${{ matrix.python-version }}
+          path: |
+            coverage.xml
+            junit.xml
+          if-no-files-found: ignore
