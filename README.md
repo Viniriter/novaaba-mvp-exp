@@ -193,6 +193,16 @@ O workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) roda a cada *p
 | `POST` | `/api/sessoes` | ✔ | Registra uma sessão de coleta |
 | `GET` | `/api/programas/{id}/resultados` | ✔ | Indicadores e histórico do programa |
 
+## 12. Ajustes pós-validação com a comunidade
+
+Refinamentos de rótulo e ícone aplicados na branch `feat/ajustes-validacao-comunidade`, voltados a aplicadores com pouca familiaridade com a interface:
+
+| Ponto de atenção | Ajuste aplicado |
+| --- | --- |
+| O ícone de disquete (💾) é uma metáfora pouco reconhecível em dispositivos móveis | Botão renomeado para **"✔ Finalizar e salvar sessão"**, deixando explícito o encerramento da sessão |
+| Os códigos AP e AT podem gerar dúvida para novos aplicadores | Legenda dos códigos exibida acima dos botões de coleta e associada ao grupo via `aria-describedby` |
+| O ícone de lápis (✎) sugere "editar" em vez de "começar" | Ação "Iniciar coleta" passou a usar o ícone ▶ |
+
 ## Licença
 
 Projeto acadêmico de uso educacional.

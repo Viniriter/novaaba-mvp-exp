@@ -325,6 +325,8 @@ def test_tela2_exibe_botoes_com_tripla_codificacao(client_logado):
         ("Erro", "✖"),
     ]:
         assert rotulo in resposta.text and simbolo in resposta.text
+    assert "Finalizar e salvar sessão" in resposta.text
+    assert 'aria-describedby="legenda-codigos"' in resposta.text
     assert "min-h-[52px]" in resposta.text
     assert "focus-visible:ring" in resposta.text
 
