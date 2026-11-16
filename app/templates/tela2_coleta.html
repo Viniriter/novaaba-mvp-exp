@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NovaABA · Coleta {{ programa.codigo }}</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  {% import "_alto_contraste.html" as alto_contraste %}
+  {{ alto_contraste.recursos() }}
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
   <a href="#conteudo" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-3 focus:ring-4 focus:ring-sky-600">Pular para o conteúdo</a>
@@ -18,6 +20,7 @@
         <p class="text-sm font-medium text-sky-100">Coleta de tentativas · {{ usuario.nome }}</p>
         <h1 class="text-xl font-bold">{{ programa.codigo }} · <span class="font-mono">{{ programa.paciente_codigo }}</span></h1>
       </div>
+      <div class="ml-auto">{{ alto_contraste.botao() }}</div>
     </div>
   </header>
 
@@ -28,7 +31,7 @@
     </section>
 
     {% if erros %}
-    <div role="alert" class="mb-6 rounded-xl border-2 border-red-700 bg-red-50 p-4 text-red-900">
+    <div role="alert" class="mb-6 rounded-xl border-2 hc-vermelho border-red-700 bg-red-50 p-4 text-red-900">
       <p class="font-bold"><span aria-hidden="true">✖</span> Não foi possível salvar a sessão:</p>
       <ul class="mt-2 list-disc pl-6">
         {% for e in erros %}<li>{{ e }}</li>{% endfor %}

@@ -482,3 +482,34 @@ def test_api_resultados(client, auth_header):
     assert corpo["sessoes_consecutivas_exigidas"] == 3
 
     assert client.get("/api/programas/999/resultados", headers=auth_header).status_code == 404
+
+
+# --------------------------------------------------------------------------- #
+# Acessibilidade — modo de alto contraste em todas as telas
+# --------------------------------------------------------------------------- #
+def _verificar_alto_contraste(html: str) -> None:
+    assert 'id="botao-alto-contraste"' in html
+    assert 'aria-pressed="false"' in html
+    assert "html.alto-contraste" in html  # CSS do modo
+    assert "prefers-contrast: more" in html  # respeita a preferência do sistema
+    assert html.count('id="botao-alto-contraste"') == 1
+
+
+def test_alto_contraste_na_tela_de_login(client):
+    _verificar_alto_contraste(client.get("/").text)
+
+
+@pytest.mark.parametrize("rota", ["/", "/coleta/1", "/resultados/1"])
+def test_alto_contraste_em_todas_as_telas(client_logado, rota):
+    resposta = client_logado.get(rota)
+    assert resposta.status_code == 200
+    _verificar_alto_contraste(resposta.text)
+
+
+def test_alto_contraste_preserva_tripla_codificacao(client_logado):
+    coleta = client_logado.get("/coleta/1").text
+    for classe in ["hc-verde", "hc-amarelo", "hc-laranja", "hc-vermelho"]:
+        assert classe in coleta
+    resultados = client_logado.get("/resultados/1").text
+    assert "hc-barra-ok" in resultados and "hc-barra-abaixo" in resultados
+    assert "hc-linha-criterio" in resultados
