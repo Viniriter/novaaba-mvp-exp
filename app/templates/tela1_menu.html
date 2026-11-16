@@ -84,7 +84,7 @@
             <p class="mb-4 text-sm text-slate-700">Critério de domínio: {{ p.criterio_dominio|round|int }}% de independência</p>
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <a href="/coleta/{{ p.id }}" class="flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-sky-800 px-4 text-lg font-bold text-white hover:bg-sky-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 focus-visible:ring-offset-2">
-                <span aria-hidden="true">✎</span> Iniciar coleta<span class="sr-only"> do {{ p.codigo }}</span>
+                <span aria-hidden="true">▶</span> Iniciar coleta<span class="sr-only"> do {{ p.codigo }}</span>
               </a>
               <a href="/resultados/{{ p.id }}" class="flex min-h-[52px] items-center justify-center gap-2 rounded-xl border-2 border-sky-800 bg-white px-4 text-lg font-bold text-sky-900 hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 focus-visible:ring-offset-2">
                 <span aria-hidden="true">📈</span> Ver resultados<span class="sr-only"> do {{ p.codigo }}</span>
