@@ -1,0 +1,4 @@
+# Finais de linha LF em todo o repositório (evita diffs e conflitos falsos entre Windows e Linux)
+* text=auto eol=lf
+*.png binary
+*.jpg binary
