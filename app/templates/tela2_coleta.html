@@ -37,12 +37,8 @@
     {% endif %}
 
     <section aria-labelledby="titulo-registro">
-      <h2 id="titulo-registro" class="mb-1 text-lg font-bold">Registrar resposta da tentativa</h2>
-      <p id="legenda-codigos" class="mb-3 text-sm text-slate-700">
-        Toque no botão correspondente à resposta da criança em cada tentativa:
-        <strong>I</strong> sem ajuda · <strong>AP</strong> com dica ou gesto · <strong>AT</strong> com ajuda física completa · <strong>E</strong> resposta incorreta ou ausente.
-      </p>
-      <div class="grid grid-cols-2 gap-3" role="group" aria-label="Tipos de resposta" aria-describedby="legenda-codigos">
+      <h2 id="titulo-registro" class="mb-3 text-lg font-bold">Registrar resposta da tentativa</h2>
+      <div class="grid grid-cols-2 gap-3" role="group" aria-label="Tipos de resposta">
         {% for codigo, ui in TENTATIVA_UI.items() %}
         <button type="button" data-tentativa="{{ codigo }}"
                 class="botao-tentativa flex min-h-[88px] flex-col items-center justify-center rounded-2xl px-3 py-2 text-center shadow-md {{ ui.classes }} active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-600 focus-visible:ring-offset-2">
@@ -76,7 +72,7 @@
         <p id="ajuda-obs" class="mt-1 text-sm text-slate-700">Até {{ max_observacoes }} caracteres. Não inclua dados pessoais do paciente.</p>
       </div>
       <button type="submit" id="salvar" class="min-h-[52px] w-full rounded-xl bg-emerald-800 px-4 text-lg font-bold text-white hover:bg-emerald-900 disabled:cursor-not-allowed disabled:bg-slate-400 disabled:text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 focus-visible:ring-offset-2">
-        <span aria-hidden="true">✔</span> Finalizar e salvar sessão
+        <span aria-hidden="true">💾</span> Salvar sessão
       </button>
     </form>
   </main>
