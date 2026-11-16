@@ -96,6 +96,7 @@ Cada camada depende apenas da camada imediatamente inferior: as rotas não acess
 * Paleta com **contraste WCAG 2.1 AA** (≥ 4,5:1 para texto).
 * **Tripla codificação** (cor + símbolo + texto) nos botões de tentativa e nos status do PEI, sem depender apenas da cor.
 * HTML semântico, `lang="pt-BR"`, rótulos associados aos campos e região `aria-live` na coleta.
+* **Modo de alto contraste** acionado por botão (`aria-pressed`) no cabeçalho de todas as telas: paleta preto/branco/amarelo, cores de tentativa e status convertidas em bordas grossas e barras do gráfico diferenciadas por preenchimento (cheia × hachurada). A escolha fica salva no navegador e, na primeira visita, segue a preferência do sistema (`prefers-contrast: more`).
 
 ## 7. Estrutura do projeto
 
@@ -113,6 +114,7 @@ NovaABA-mvp-exp/
 │   ├── seed.py                # Carga inicial de dados de demonstração
 │   ├── main.py                # Aplicação FastAPI: rotas HTML e API REST
 │   └── templates/
+│       ├── _alto_contraste.html  # Modo de alto contraste (CSS, script e botão)
 │       ├── tela1_menu.html
 │       ├── tela2_coleta.html
 │       └── tela3_resultados.html

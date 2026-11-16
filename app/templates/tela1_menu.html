@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NovaABA · Menu</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  {% import "_alto_contraste.html" as alto_contraste %}
+  {{ alto_contraste.recursos() }}
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
   <a href="#conteudo" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-3 focus:ring-4 focus:ring-sky-600">Pular para o conteúdo</a>
@@ -15,6 +17,8 @@
         <p class="text-sm font-medium text-sky-100">Clínica Abrace</p>
         <h1 class="text-2xl font-bold">NovaABA</h1>
       </div>
+      <div class="flex items-center gap-2">
+        {{ alto_contraste.botao() }}
       {% if usuario %}
       <form method="post" action="/logout">
         <button type="submit" class="min-h-[52px] rounded-xl border-2 border-white px-4 font-semibold hover:bg-sky-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-300">
@@ -22,12 +26,13 @@
         </button>
       </form>
       {% endif %}
+      </div>
     </div>
   </header>
 
   <main id="conteudo" class="mx-auto max-w-3xl px-4 py-6">
     {% if erro %}
-    <div role="alert" class="mb-6 rounded-xl border-2 border-red-700 bg-red-50 p-4 text-red-900">
+    <div role="alert" class="mb-6 rounded-xl border-2 hc-vermelho border-red-700 bg-red-50 p-4 text-red-900">
       <span aria-hidden="true" class="font-bold">✖</span> <strong>Erro:</strong> {{ erro }}
     </div>
     {% endif %}

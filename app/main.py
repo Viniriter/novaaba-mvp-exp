@@ -52,26 +52,26 @@ from app.services import (
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
 TENTATIVA_UI = {
-    "I": {"rotulo": "Independente", "simbolo": "✔", "classes": "bg-emerald-700 text-white"},
-    "AP": {"rotulo": "Ajuda Parcial", "simbolo": "◐", "classes": "bg-amber-300 text-slate-900"},
-    "AT": {"rotulo": "Ajuda Total", "simbolo": "●", "classes": "bg-orange-700 text-white"},
-    "E": {"rotulo": "Erro", "simbolo": "✖", "classes": "bg-red-700 text-white"},
+    "I": {"rotulo": "Independente", "simbolo": "✔", "classes": "hc-verde bg-emerald-700 text-white"},
+    "AP": {"rotulo": "Ajuda Parcial", "simbolo": "◐", "classes": "hc-amarelo bg-amber-300 text-slate-900"},
+    "AT": {"rotulo": "Ajuda Total", "simbolo": "●", "classes": "hc-laranja bg-orange-700 text-white"},
+    "E": {"rotulo": "Erro", "simbolo": "✖", "classes": "hc-vermelho bg-red-700 text-white"},
 }
 STATUS_UI = {
     "NAO_INICIADO": {
         "rotulo": "Não iniciado",
         "simbolo": "○",
-        "classes": "bg-slate-100 text-slate-800 border-slate-600",
+        "classes": "hc-cinza bg-slate-100 text-slate-800 border-slate-600",
     },
     "EM_AQUISICAO": {
         "rotulo": "Em aquisição",
         "simbolo": "▲",
-        "classes": "bg-amber-100 text-amber-900 border-amber-700",
+        "classes": "hc-amarelo bg-amber-100 text-amber-900 border-amber-700",
     },
     "DOMINADO": {
         "rotulo": "Dominado",
         "simbolo": "✔",
-        "classes": "bg-emerald-100 text-emerald-900 border-emerald-700",
+        "classes": "hc-verde bg-emerald-100 text-emerald-900 border-emerald-700",
     },
 }
 
